@@ -80,3 +80,14 @@ def update_registered_buffer(
             dtype,
         )
 
+
+def drop_path(x, drop_prob: float = 0., training: bool = True, scale_by_keep: bool = True):
+    if drop_prob == 0. or not training:
+        return x
+    keep_prob = 1 - drop_prob
+    shape = (x.shape[0], ) + (1, ) * (x.ndim - 1)   # work with diff dim tensor, not just 2D ConvNets
+    random_tensor = x.new_empty(shape).bernoulli_(keep_prob)
+
+    if keep_prob > 0 and scale_by_keep:
+        random_tensor.div_(keep_prob)
+    return x * random_tensor
