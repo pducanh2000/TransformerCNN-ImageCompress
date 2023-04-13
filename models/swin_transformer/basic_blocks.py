@@ -3,6 +3,13 @@ import torch.nn as nn
 from utils.helper_functions import drop_path
 
 
+def subpel_conv3x3(in_ch: int, out_ch: int, r: int = 1):
+    return nn.Sequential(
+        nn.Conv2d(in_ch, out_ch * r ** 2, kernel_size=3, padding=1),
+        nn.PixelShuffle(r)
+    )
+
+
 class DropPath(nn.Module):
     def __init__(self, drop_prob: float = 0., scale_by_keep: bool = True):
         super(DropPath, self).__init__()
@@ -57,6 +64,7 @@ class AttentionBlock(nn.Module):
     Args:
         N (int): number of channels
     """
+
     def __init__(self, N):
         super(AttentionBlock, self).__init__()
 
@@ -64,11 +72,11 @@ class AttentionBlock(nn.Module):
             def __init__(self):
                 super().__init__()
                 self.conv = nn.Sequential(
-                    nn.Conv2d(N, N//2, kernel_size=1, stride=1),
+                    nn.Conv2d(N, N // 2, kernel_size=1, stride=1),
                     nn.ReLU(inplace=True),
-                    nn.Conv2d(N//2, N//2, kernel_size=3, stride=1, padding=1),
+                    nn.Conv2d(N // 2, N // 2, kernel_size=3, stride=1, padding=1),
                     nn.ReLU(inplace=True),
-                    nn.Conv2d(N//2, N, kernel_size=1, stride=1),
+                    nn.Conv2d(N // 2, N, kernel_size=1, stride=1),
                 )
                 self.relu = nn.ReLU(inplace=True)
 
@@ -78,6 +86,7 @@ class AttentionBlock(nn.Module):
                 out += identity
                 out = self.relu(out)
                 return out
+
         self.conv_a = nn.Sequential(
             ResidualUnit(),
             ResidualUnit(),
