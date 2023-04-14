@@ -39,7 +39,7 @@ class TCM(CompressionModel):
                            type="W" if not i % 2 else "SW")
             for i in range(config[0])
         ]
-        self.m_down1.append(ResidualBlockWithStride(2 * N, 2 * N, stride=2))
+        self.m_down1 += [ResidualBlockWithStride(2 * N, 2 * N, stride=2)]
 
         begin += config[0]
         self.m_down2 = [
@@ -47,7 +47,7 @@ class TCM(CompressionModel):
                            type="W" if not i % 2 else "SW")
             for i in range(config[1])
         ]
-        self.m_down2.append(ResidualBlockWithStride(2 * N, 2 * N, stride=2))
+        self.m_down2 += [ResidualBlockWithStride(2 * N, 2 * N, stride=2)]
 
         begin += config[1]
         self.m_down3 = [
@@ -55,7 +55,7 @@ class TCM(CompressionModel):
                            type="W" if not i % 2 else "SW")
             for i in range(config[2])
         ]
-        self.m_down3.append(nn.Conv2d(2 * N, M, kernel_size=3, stride=2, padding=1))
+        self.m_down3 += [nn.Conv2d(2 * N, M, kernel_size=3, stride=2, padding=1)]
 
         begin += config[2]
         self.m_up1 = [
@@ -63,21 +63,21 @@ class TCM(CompressionModel):
                            type="W" if not i % 2 else "SW")
             for i in range(config[3])
         ]
-        self.m_up1.append(ResidualBlockUpsample(2 * N, 2 * N, 2))
+        self.m_up1 += [ResidualBlockUpsample(2 * N, 2 * N, 2)]
 
         self.m_up2 = [
             ConvTransBlock(dim, dim, self.head_dim[4], self.window_size, dpr[i + begin],
                            type="W" if not i % 2 else "SW")
             for i in range(config[4])
         ]
-        self.m_up2.append(ResidualBlockUpsample(2 * N, 2 * N, 2))
+        self.m_up2 += [ResidualBlockUpsample(2 * N, 2 * N, 2)]
 
         self.m_up3 = [
             ConvTransBlock(dim, dim, self.head_dim[5], self.window_size, dpr[i + begin],
                            type="W" if not i % 2 else "SW")
             for i in range(config[5])
         ]
-        self.m_up3.append(ResidualBlockUpsample(2 * N, 3, 2))
+        self.m_up3 += [ResidualBlockUpsample(2 * N, 3, 2)]
 
         self.g_a = nn.Sequential(
             ResidualBlockWithStride(3, 2 * N, 2),
@@ -96,7 +96,7 @@ class TCM(CompressionModel):
             ConvTransBlock(N, N, 32, 4, 0, type="W" if not i % 2 else "SW")
             for i in range(config[0])
         ]
-        self.ha_down1.append(nn.Conv2d(2 * N, 192, kernel_size=3, stride=2, padding=1))
+        self.ha_down1 += [nn.Conv2d(2 * N, 192, kernel_size=3, stride=2, padding=1)]
 
         self.h_a = nn.Sequential(
             ResidualBlockWithStride(320, 2 * N, 2),
